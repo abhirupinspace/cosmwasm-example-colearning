@@ -1,0 +1,85 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "QueryMsg",
+  "description": "Read-only calls. Free — no gas, no transaction, no signature.\n\n`#[derive(QueryResponses)]` plus each `#[returns(...)]` is what lets `cargo schema` document the response type for every query.",
+  "oneOf": [
+    {
+      "description": "Who is allowed to hand out voting rights.",
+      "type": "object",
+      "required": [
+        "chairperson"
+      ],
+      "properties": {
+        "chairperson": {
+          "type": "object",
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "description": "The full ballot with live vote counts.",
+      "type": "object",
+      "required": [
+        "proposals"
+      ],
+      "properties": {
+        "proposals": {
+          "type": "object",
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "description": "One address's record: weight, whether they voted, who they delegated to.",
+      "type": "object",
+      "required": [
+        "voter"
+      ],
+      "properties": {
+        "voter": {
+          "type": "object",
+          "required": [
+            "address"
+          ],
+          "properties": {
+            "address": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "description": "Solidity's `winningProposal()` — the index of the leading proposal.",
+      "type": "object",
+      "required": [
+        "winning_proposal"
+      ],
+      "properties": {
+        "winning_proposal": {
+          "type": "object",
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "description": "Solidity's `winnerName()` — the name of the leading proposal.",
+      "type": "object",
+      "required": [
+        "winner_name"
+      ],
+      "properties": {
+        "winner_name": {
+          "type": "object",
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  ]
+}

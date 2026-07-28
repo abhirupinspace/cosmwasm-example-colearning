@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ExecuteMsg",
+  "description": "State-changing calls. These cost gas and need a signed transaction.",
+  "oneOf": [
+    {
+      "description": "Chairperson only. Grants `voter` a weight of 1.",
+      "type": "object",
+      "required": [
+        "give_right_to_vote"
+      ],
+      "properties": {
+        "give_right_to_vote": {
+          "type": "object",
+          "required": [
+            "voter"
+          ],
+          "properties": {
+            "voter": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "description": "Cast your weight for the proposal at this index. Final — you cannot vote twice, change your vote, or delegate afterwards.",
+      "type": "object",
+      "required": [
+        "vote"
+      ],
+      "properties": {
+        "vote": {
+          "type": "object",
+          "required": [
+            "proposal"
+          ],
+          "properties": {
+            "proposal": {
+              "type": "integer",
+              "format": "uint32",
+              "minimum": 0.0
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "description": "Hand your weight to another address. Also final. If that address has itself delegated, your weight follows the chain to the end of it.",
+      "type": "object",
+      "required": [
+        "delegate"
+      ],
+      "properties": {
+        "delegate": {
+          "type": "object",
+          "required": [
+            "to"
+          ],
+          "properties": {
+            "to": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  ]
+}

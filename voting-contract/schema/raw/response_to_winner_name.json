@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "WinnerNameResponse",
+  "type": "object",
+  "required": [
+    "name",
+    "tied",
+    "vote_count"
+  ],
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "tied": {
+      "type": "boolean"
+    },
+    "vote_count": {
+      "type": "integer",
+      "format": "uint64",
+      "minimum": 0.0
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ProposalsResponse",
+  "type": "object",
+  "required": [
+    "proposals"
+  ],
+  "properties": {
+    "proposals": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Proposal"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "Proposal": {
+      "description": "One option people can vote for.\n\nSolidity equivalent: ```solidity struct Proposal { bytes32 name; uint voteCount; } ``` We use `String` instead of `bytes32` because CosmWasm has no 32-byte-string limitation — JSON in, JSON out.",
+      "type": "object",
+      "required": [
+        "name",
+        "vote_count"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "vote_count": {
+          "description": "Sum of the weights of everyone who voted for this proposal.",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "InstantiateMsg",
+  "description": "Runs once, when the contract is deployed.\n\nSolidity: `constructor(bytes32[] memory proposalNames)`. Whoever sends this transaction becomes the chairperson and gets weight 1.",
+  "type": "object",
+  "required": [
+    "proposals"
+  ],
+  "properties": {
+    "proposals": {
+      "description": "The fixed list of options. Order matters — you vote by index, so the first name here is proposal `0`.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false
+}

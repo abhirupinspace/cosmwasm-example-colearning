@@ -1,0 +1,358 @@
+{
+  "contract_name": "voting-contract",
+  "contract_version": "0.1.0",
+  "idl_version": "1.0.0",
+  "instantiate": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "InstantiateMsg",
+    "description": "Runs once, when the contract is deployed.\n\nSolidity: `constructor(bytes32[] memory proposalNames)`. Whoever sends this transaction becomes the chairperson and gets weight 1.",
+    "type": "object",
+    "required": [
+      "proposals"
+    ],
+    "properties": {
+      "proposals": {
+        "description": "The fixed list of options. Order matters — you vote by index, so the first name here is proposal `0`.",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "additionalProperties": false
+  },
+  "execute": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "ExecuteMsg",
+    "description": "State-changing calls. These cost gas and need a signed transaction.",
+    "oneOf": [
+      {
+        "description": "Chairperson only. Grants `voter` a weight of 1.",
+        "type": "object",
+        "required": [
+          "give_right_to_vote"
+        ],
+        "properties": {
+          "give_right_to_vote": {
+            "type": "object",
+            "required": [
+              "voter"
+            ],
+            "properties": {
+              "voter": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      {
+        "description": "Cast your weight for the proposal at this index. Final — you cannot vote twice, change your vote, or delegate afterwards.",
+        "type": "object",
+        "required": [
+          "vote"
+        ],
+        "properties": {
+          "vote": {
+            "type": "object",
+            "required": [
+              "proposal"
+            ],
+            "properties": {
+              "proposal": {
+                "type": "integer",
+                "format": "uint32",
+                "minimum": 0.0
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      {
+        "description": "Hand your weight to another address. Also final. If that address has itself delegated, your weight follows the chain to the end of it.",
+        "type": "object",
+        "required": [
+          "delegate"
+        ],
+        "properties": {
+          "delegate": {
+            "type": "object",
+            "required": [
+              "to"
+            ],
+            "properties": {
+              "to": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    ]
+  },
+  "query": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "QueryMsg",
+    "description": "Read-only calls. Free — no gas, no transaction, no signature.\n\n`#[derive(QueryResponses)]` plus each `#[returns(...)]` is what lets `cargo schema` document the response type for every query.",
+    "oneOf": [
+      {
+        "description": "Who is allowed to hand out voting rights.",
+        "type": "object",
+        "required": [
+          "chairperson"
+        ],
+        "properties": {
+          "chairperson": {
+            "type": "object",
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      {
+        "description": "The full ballot with live vote counts.",
+        "type": "object",
+        "required": [
+          "proposals"
+        ],
+        "properties": {
+          "proposals": {
+            "type": "object",
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      {
+        "description": "One address's record: weight, whether they voted, who they delegated to.",
+        "type": "object",
+        "required": [
+          "voter"
+        ],
+        "properties": {
+          "voter": {
+            "type": "object",
+            "required": [
+              "address"
+            ],
+            "properties": {
+              "address": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      {
+        "description": "Solidity's `winningProposal()` — the index of the leading proposal.",
+        "type": "object",
+        "required": [
+          "winning_proposal"
+        ],
+        "properties": {
+          "winning_proposal": {
+            "type": "object",
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      {
+        "description": "Solidity's `winnerName()` — the name of the leading proposal.",
+        "type": "object",
+        "required": [
+          "winner_name"
+        ],
+        "properties": {
+          "winner_name": {
+            "type": "object",
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    ]
+  },
+  "migrate": null,
+  "sudo": null,
+  "responses": {
+    "chairperson": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ChairpersonResponse",
+      "type": "object",
+      "required": [
+        "chairperson"
+      ],
+      "properties": {
+        "chairperson": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "proposals": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ProposalsResponse",
+      "type": "object",
+      "required": [
+        "proposals"
+      ],
+      "properties": {
+        "proposals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Proposal"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "definitions": {
+        "Proposal": {
+          "description": "One option people can vote for.\n\nSolidity equivalent: ```solidity struct Proposal { bytes32 name; uint voteCount; } ``` We use `String` instead of `bytes32` because CosmWasm has no 32-byte-string limitation — JSON in, JSON out.",
+          "type": "object",
+          "required": [
+            "name",
+            "vote_count"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "vote_count": {
+              "description": "Sum of the weights of everyone who voted for this proposal.",
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "voter": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "VoterResponse",
+      "type": "object",
+      "properties": {
+        "voter": {
+          "description": "`None` if this address was never granted the right to vote.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Voter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "definitions": {
+        "Addr": {
+          "description": "A human readable address.\n\nIn Cosmos, this is typically bech32 encoded. But for multi-chain smart contracts no assumptions should be made other than being UTF-8 encoded and of reasonable length.\n\nThis type represents a validated address. It can be created in the following ways 1. Use `Addr::unchecked(input)` 2. Use `let checked: Addr = deps.api.addr_validate(input)?` 3. Use `let checked: Addr = deps.api.addr_humanize(canonical_addr)?` 4. Deserialize from JSON. This must only be done from JSON that was validated before such as a contract's state. `Addr` must not be used in messages sent by the user because this would result in unvalidated instances.\n\nThis type is immutable. If you really need to mutate it (Really? Are you sure?), create a mutable copy using `let mut mutable = Addr::to_string()` and operate on that `String` instance.",
+          "type": "string"
+        },
+        "Voter": {
+          "description": "Everything we know about one participant.\n\nSolidity equivalent: ```solidity struct Voter { uint weight; bool voted; address delegate; uint vote; } ```\n\nNote how Rust's `Option` replaces Solidity's \"zero value means unset\" convention. In Solidity `delegate == address(0)` means \"no delegate\"; here it is `None`, which the compiler forces you to handle.",
+          "type": "object",
+          "required": [
+            "voted",
+            "weight"
+          ],
+          "properties": {
+            "delegate": {
+              "description": "Who this address delegated to, if anyone.",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Addr"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "vote": {
+              "description": "Index into the proposal list, set only if `voted` is true *and* the address voted directly rather than delegating.",
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "uint32",
+              "minimum": 0.0
+            },
+            "voted": {
+              "description": "True once this address has either voted directly or delegated away. Either action is final.",
+              "type": "boolean"
+            },
+            "weight": {
+              "description": "How many votes this address carries. `0` means \"not allowed to vote\". Starts at 1 when the chairperson grants the right, and grows as other people delegate to this address.",
+              "type": "integer",
+              "format": "uint64",
+              "minimum": 0.0
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "winner_name": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "WinnerNameResponse",
+      "type": "object",
+      "required": [
+        "name",
+        "tied",
+        "vote_count"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "tied": {
+          "type": "boolean"
+        },
+        "vote_count": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
+        }
+      },
+      "additionalProperties": false
+    },
+    "winning_proposal": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "WinningProposalResponse",
+      "type": "object",
+      "required": [
+        "index",
+        "tied",
+        "vote_count"
+      ],
+      "properties": {
+        "index": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "tied": {
+          "description": "True when another proposal has the same count. The index above is then just the first of the tied proposals — decide off-chain what to do.",
+          "type": "boolean"
+        },
+        "vote_count": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

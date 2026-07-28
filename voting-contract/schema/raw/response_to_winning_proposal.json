@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "WinningProposalResponse",
+  "type": "object",
+  "required": [
+    "index",
+    "tied",
+    "vote_count"
+  ],
+  "properties": {
+    "index": {
+      "type": "integer",
+      "format": "uint32",
+      "minimum": 0.0
+    },
+    "tied": {
+      "description": "True when another proposal has the same count. The index above is then just the first of the tied proposals — decide off-chain what to do.",
+      "type": "boolean"
+    },
+    "vote_count": {
+      "type": "integer",
+      "format": "uint64",
+      "minimum": 0.0
+    }
+  },
+  "additionalProperties": false
+}
